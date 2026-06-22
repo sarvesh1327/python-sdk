@@ -245,6 +245,23 @@ def test_structured_output_dict_str_types():
     assert "result" in meta.output_schema["properties"]
 
 
+def test_structured_output_dict_str_annotated_metadata():
+    """Test that dict[str, T] return types preserve Annotated/Field metadata."""
+
+    def func_dict_annotated() -> Annotated[
+        dict[str, int], Field(description="Configuration values")
+    ]:  # pragma: no cover
+        return {"timeout": 30}
+
+    meta = func_metadata(func_dict_annotated)
+    assert meta.output_schema == {
+        "type": "object",
+        "additionalProperties": {"type": "integer"},
+        "title": "func_dict_annotatedDictOutput",
+        "description": "Configuration values",
+    }
+
+
 @pytest.mark.anyio
 async def test_lambda_function():
     """Test lambda function schema and validation"""
